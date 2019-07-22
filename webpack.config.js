@@ -2,33 +2,34 @@ const path = require('path');
 const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-function getEntries(globPath) {
-	const files = glob.sync(globPath),
-				entries = {};
-	files.forEach(function(filepath) {
-			const split = filepath.split('/');
-			const name = split[split.length - 2];
-			entries[name] = './' + filepath;
-	});
-	return entries;
+function getEntries(searchPath, root) {
+  const files = glob.sync(searchPath)
+  const entries = files.map((value, index) => {
+    const relativePath = path.relative(root, value);
+    return {
+      name: value.split('/')[value.split('/').length - 2],
+      path: path.resolve('./', value),
+      route: relativePath.split('/').filter((value, index) => value !== 'index.tsx').join('/')
+    }
+  });
+  return entries;
 }
 
-const entries = getEntries('src/**/index.tsx');
+const entries = getEntries('src/**/index.tsx', 'src');
 
 module.exports = {
   entry: {
     ...Object.assign(
-			...Object.keys(entries)
-			.map((name, index) => {
-				let entryObject = {};
-				entryObject[name] = path.resolve(entries[name]);
-				return entryObject;
-			})
-		)
+      ...entries.map((value, index) => {
+        const entryObject = {};
+        entryObject[value.name]= value.path;
+        return entryObject;
+      })
+    )
   },
   output: {
     path: path.join(__dirname, '/dist'),
-    filename: 'static/js/[name].[hash:8].route.js',
+    filename: 'static/js/[name]-route.[hash:8].js',
     publicPath: '/'
   },
   resolve: {
@@ -67,14 +68,13 @@ module.exports = {
     ]
   },
   plugins: [
-    ...Object.keys(entries)
-      .map(function(name, index) {
-        return new HtmlWebpackPlugin({
-          filename: name === 'src' ? 'index.html' : name + '/index.html',
-          template: path.resolve('./index.html'),
-          inject: true,
-          chunks: [name]
-        })
-      }),
+    ...entries.map((value, index) => {
+      return new HtmlWebpackPlugin({
+        filename: value.name === 'src' ? 'index.html' : value.route + '/index.html',
+        template: path.resolve('./index.html'),
+        inject: true,
+        chunks: [value.name]
+      })
+    })
   ]
 };
