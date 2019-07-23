@@ -3,6 +3,8 @@ const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 function getEntries(searchPath, root) {
   const files = glob.sync(searchPath)
@@ -107,6 +109,15 @@ module.exports = {
     new UglifyJsPlugin({
       test: /\.(ts|js|tsx|jsx)?$/,
       sourceMap: true
-    })
+    }),
+    new CopyWebpackPlugin(
+      [
+        {
+          from: path.resolve(__dirname, '../assets/'),
+          to: path.resolve(__dirname, '../dist/assets')
+        }
+      ]
+    ),
+    new CleanWebpackPlugin()
   ]
 };
