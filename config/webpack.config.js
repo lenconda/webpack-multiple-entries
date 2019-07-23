@@ -1,6 +1,7 @@
 const path = require('path');
 const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 function getEntries(searchPath, root) {
   const files = glob.sync(searchPath)
@@ -62,8 +63,18 @@ module.exports = {
         ]
       },
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '/'
+            }
+          }, 
+          'css-loader',
+          'postcss-loader',
+          'sass-loader'
+        ]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -87,6 +98,10 @@ module.exports = {
         inject: true,
         chunks: [value.name]
       })
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name].[hash:8].css',
+      chunkFilename: '[id].[hash:8].css'
     })
   ]
 };
