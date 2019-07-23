@@ -2,6 +2,7 @@ const path = require('path');
 const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 function getEntries(searchPath, root) {
   const files = glob.sync(searchPath)
@@ -41,14 +42,14 @@ module.exports = {
       {
         oneOf: [
           {
-            test: /\.(ts|js)x?$/,
+            test: /\.(ts|js|tsx|jsx)?$/,
             exclude: /node_modules/,
             use: {
               loader: 'babel-loader'
             },
           },
           {
-            test: /\.(js|ts)x?$/,
+            test: /\.(ts|js|tsx|jsx)?$/,
             exclude: /node_modules/,
             loader: require.resolve('babel-loader'),
             options: {
@@ -102,6 +103,10 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].[hash:8].css',
       chunkFilename: '[id].[hash:8].css'
+    }),
+    new UglifyJsPlugin({
+      test: /\.(ts|js|tsx|jsx)?$/,
+      sourceMap: true
     })
   ]
 };
