@@ -28,7 +28,7 @@ module.exports = {
     )
   },
   output: {
-    path: path.join(__dirname, '/dist'),
+    path: path.join(__dirname, '../dist'),
     filename: 'static/js/[name]-route.[hash:8].js',
     publicPath: '/'
   },
@@ -83,7 +83,7 @@ module.exports = {
     ...entries.map((value, index) => {
       return new HtmlWebpackPlugin({
         filename: value.name === 'src' ? 'index.html' : value.route + '/index.html',
-        template: path.resolve('./index.html'),
+        template: path.resolve(__dirname, '../templates/index.html'),
         inject: true,
         chunks: [value.name]
       })
